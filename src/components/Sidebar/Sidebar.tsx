@@ -31,6 +31,9 @@ const StyledContainer = styled.div`
   max-width: 350px;
   overflow-y: scroll;
   border-right: 1px solid whitesmoke;
+  ::webekit-scrolbar {
+    display: none;
+  }
 `;
 
 const StyledHeader = styled.div`
