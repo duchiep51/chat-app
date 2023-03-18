@@ -1,12 +1,11 @@
+import { StyledImageWrapper } from "@/atoms/StyledImageWrapper";
 import { Button } from "@mui/material";
 import Head from "next/head";
 import Image from "next/image";
-import React from "react";
+import { useSignInWithGoogle } from "react-firebase-hooks/auth";
 import styled from "styled-components";
 import WhatAppLogo from "../../assets/whatsapplogo.png";
 import { auth } from "../../config/firebase";
-import { useSignInWithGoogle } from "react-firebase-hooks/auth";
-import { StyledImageWrapper } from "@/atoms/StyledImageWrapper";
 
 const StyledContainer = styled.div`
   height: 100vh;

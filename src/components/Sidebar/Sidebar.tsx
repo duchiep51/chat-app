@@ -17,9 +17,13 @@ import MoreVerticalIcon from "@mui/icons-material/MoreVert";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SearchIcon from "@mui/icons-material/Search";
 import { signOut } from "firebase/auth";
-import { auth } from "../../../config/firebase";
-import { useAuthState, useSignInWithGoogle } from "react-firebase-hooks/auth";
-import * as EmailValidator from 'email-validator'
+import { auth, db } from "../../../config/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import * as EmailValidator from "email-validator";
+import { addDoc, collection, query, where } from "firebase/firestore";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { Conversation } from "../../../models";
+import ConversationSelect from "../ConversationSelect/ConversationSelect";
 
 const StyledContainer = styled.div`
   height: 100vh;
@@ -91,23 +95,43 @@ const Sidebar = () => {
     setOpeNewConversationDialog(false);
   };
 
-  const isInvitingSelf = recipientEmail === loggedInUser?.email
+  const queryGetConversationsForCurrentUser = query(
+    collection(db, "conversations"),
+    where("users", "array-contains", loggedInUser?.email)
+  );
+  const [conversationSnapshot, _loading] = useCollection(
+    queryGetConversationsForCurrentUser
+  );
 
-  const createConversation = () => {
-    if (!recipientEmail) return 
+  const isConversationsExisted = (recipientEmail: string) => {
+    return conversationSnapshot?.docs.find((conversation) =>
+      (conversation.data() as Conversation).users.includes(recipientEmail)
+    );
+  };
 
-    if (!EmailValidator.validate(recipientEmail) && !isInvitingSelf) {
-      
+  const isInvitingSelf = recipientEmail === loggedInUser?.email;
+
+  const createConversation = async () => {
+    if (!recipientEmail) return;
+
+    if (
+      EmailValidator.validate(recipientEmail) &&
+      !isInvitingSelf &&
+      !isConversationsExisted(recipientEmail)
+    ) {
+      await addDoc(collection(db, "conversations"), {
+        users: [loggedInUser?.email, recipientEmail],
+      });
     }
 
-    handleCloseNewConversationDialog()
-  }
+    handleCloseNewConversationDialog();
+  };
 
   return (
     <StyledContainer>
       <StyledHeader>
-        <Tooltip title="User Email" placement="right">
-          <StyledUserAvatar />
+        <Tooltip title={loggedInUser?.email as string} placement="right">
+          <StyledUserAvatar src={loggedInUser?.photoURL || ""} />
         </Tooltip>
 
         <div>
@@ -135,13 +159,23 @@ const Sidebar = () => {
         Start a new conversation
       </StyledSidebarButton>
 
+      {conversationSnapshot?.docs.map((conversation) => (
+        <ConversationSelect
+          key={conversation.id}
+          id={conversation.id}
+          conversationUsers={(conversation.data() as Conversation).users}
+        />
+      ))}
+
       <Dialog
         open={openNewConversationDialog}
         onClose={handleCloseNewConversationDialog}
       >
         <DialogTitle>New conversation</DialogTitle>
         <DialogContent>
-          <DialogContentText>Please enter a google address you want to chat with</DialogContentText>
+          <DialogContentText>
+            Please enter a google address you want to chat with
+          </DialogContentText>
           <TextField
             autoFocus
             margin="dense"
@@ -155,7 +189,7 @@ const Sidebar = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseNewConversationDialog}>Cancel</Button>
-          <Button onClick={createConversation}>Subscribe</Button>
+          <Button onClick={createConversation}>Create</Button>
         </DialogActions>
       </Dialog>
     </StyledContainer>
