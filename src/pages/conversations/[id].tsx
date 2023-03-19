@@ -9,7 +9,7 @@ import { auth, db } from "../../../config/firebase";
 import { Conversation, IMessage } from "../../../models";
 import {
   generateQueryGetMessage,
-  transformMessage,
+  transformMessage
 } from "../../../utils/getMessageInConversation";
 import { getRecipientEmail } from "../../../utils/getRecipientEmail";
 

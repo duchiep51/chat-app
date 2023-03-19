@@ -1,5 +1,27 @@
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
+import MicIcon from "@mui/icons-material/Mic";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import SendIcon from "@mui/icons-material/Send";
 import { IconButton } from "@mui/material";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
+import { useRouter } from "next/router";
+import {
+  KeyboardEventHandler,
+  MouseEventHandler,
+  useRef,
+  useState,
+} from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useCollection } from "react-firebase-hooks/firestore";
 import styled from "styled-components";
+import { auth, db } from "../../../config/firebase";
 import { useRecipient } from "../../../hooks/useRecipient";
 import { Conversation, IMessage } from "../../../models";
 import {
@@ -7,14 +29,8 @@ import {
   generateQueryGetMessage,
   transformMessage,
 } from "../../../utils/getMessageInConversation";
-import RecipientAvatar from "../RecipientAvatar/RecipientAvatar";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
-import { useRouter } from "next/router";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../../config/firebase";
-import { useCollection } from "react-firebase-hooks/firestore";
 import Message from "../Message/Message";
+import RecipientAvatar from "../RecipientAvatar/RecipientAvatar";
 
 const StyledRecipientHeader = styled.div`
   position: sticky;
@@ -54,6 +70,31 @@ const StyledMessageContainer = styled.div`
   min-height: 90vh;
 `;
 
+const StyledInputContainer = styled.form`
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  z-index: 100;
+`;
+
+const StyledInput = styled.input`
+  flex-grow: 1;
+  outline: none;
+  border: none;
+  border-radius: 10px;
+  background-color: whitesmoke;
+  padding: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+`;
+
+const EndOfMessageForAutoScroll = styled.div`
+  margin-bottom: 30px;
+`;
+
 const ConversationScreen = ({
   conversation,
   messages,
@@ -61,6 +102,8 @@ const ConversationScreen = ({
   conversation: Conversation;
   messages: IMessage[];
 }) => {
+  const endOfMessageRef = useRef<HTMLDivElement>(null);
+  const [newMessage, setNewMessage] = useState<string>("");
   const [loggedInUser, _loading, _error] = useAuthState(auth);
 
   const conversationUsers = conversation.users;
@@ -91,6 +134,48 @@ const ConversationScreen = ({
     return null;
   };
 
+  const addMessageToDbAndUpdateLastSeen = async () => {
+    await setDoc(
+      doc(db, "users", loggedInUser?.email as string),
+      {
+        lastSeen: serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    await addDoc(collection(db, "messages"), {
+      conversation_id: conversationId,
+      sent_at: serverTimestamp(),
+      text: newMessage,
+      user: loggedInUser?.email,
+    });
+
+    setNewMessage("");
+    scrollToBottom()
+  };
+
+  const sendMessageOnEnter: KeyboardEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (!newMessage) return;
+      addMessageToDbAndUpdateLastSeen();
+    }
+  };
+
+  const sendMessageOnClick: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.preventDefault();
+    if (!newMessage) return;
+    addMessageToDbAndUpdateLastSeen();
+  };
+
+  const scrollToBottom = () => {
+    endOfMessageRef.current?.scrollIntoView({
+      behavior: "smooth"
+    })
+  }
+
   return (
     <>
       <StyledRecipientHeader>
@@ -117,7 +202,25 @@ const ConversationScreen = ({
           </IconButton>
         </StyledHeaderIcon>
       </StyledRecipientHeader>
-      <StyledMessageContainer>{showMessages()}</StyledMessageContainer>
+      <StyledMessageContainer>
+        {showMessages()}
+        <EndOfMessageForAutoScroll ref={endOfMessageRef} />
+      </StyledMessageContainer>
+
+      <StyledInputContainer>
+        <InsertEmoticonIcon />
+        <StyledInput
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value as string)}
+          onKeyDown={sendMessageOnEnter}
+        />
+        <IconButton onClick={sendMessageOnClick} disabled={!newMessage}>
+          <SendIcon />
+        </IconButton>
+        <IconButton>
+          <MicIcon />
+        </IconButton>
+      </StyledInputContainer>
     </>
   );
 };
