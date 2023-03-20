@@ -1,10 +1,10 @@
 import Loading from "@/components/Loading/Loading";
+import { addUser } from "@/db/users/utils";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../config/firebase";
-import { addUser } from "../../utils/firesbase/firestore";
 import Login from "./login";
 
 export default function App({ Component, pageProps }: AppProps) {

@@ -1,4 +1,4 @@
-import Sidebar from '@/components/Sidebar/Sidebar'
+import Sidebar from '@/components/Sidebar'
 import { Inter } from 'next/font/google'
 import Head from 'next/head'
 

@@ -1,5 +1,5 @@
 import ConversationScreen from "@/components/ConversationScreen/ConversationScreen";
-import Sidebar from "@/components/Sidebar/Sidebar";
+import Sidebar from "@/components/Sidebar";
 import { doc, getDoc, getDocs } from "firebase/firestore";
 import { GetServerSideProps } from "next";
 import Head from "next/head";

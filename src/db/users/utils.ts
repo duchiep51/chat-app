@@ -1,7 +1,9 @@
-import { DocumentReference } from "./../../node_modules/@firebase/firestore-types/index.d";
 import { User } from "firebase/auth";
-import { doc, DocumentData, serverTimestamp, setDoc } from "firebase/firestore";
-import { db } from "../../config/firebase";
+import {
+    doc, serverTimestamp,
+    setDoc
+} from "firebase/firestore";
+import { db } from "../../../config/firebase";
 
 type UserFirebase = User | null | undefined;
 
