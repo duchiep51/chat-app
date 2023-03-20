@@ -3,33 +3,16 @@ import { Button } from "@mui/material";
 import Head from "next/head";
 import Image from "next/image";
 import { useSignInWithGoogle } from "react-firebase-hooks/auth";
-import styled from "styled-components";
-import WhatAppLogo from "../../assets/whatsapplogo.png";
-import { auth } from "../../config/firebase";
-
-const StyledContainer = styled.div`
-  height: 100vh;
-  display: grid;
-  place-items: center;
-  background-color: whitesmoke;
-`;
-
-const StyledLoginContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 100px;
-  background-color: white;
-  border-radius: 5px;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-`;
+import AppLogo from "../../../assets/chat.png";
+import { auth } from "../../../config/firebase";
+import { StyledContainer, StyledLoginContainer } from "./styles";
 
 const Login = () => {
   const [signInWithGoogle, _user, _loading, _error] = useSignInWithGoogle(auth);
 
   const handleSignIn = () => {
     signInWithGoogle();
-  }
+  };
 
   return (
     <StyledContainer>
@@ -39,7 +22,7 @@ const Login = () => {
 
       <StyledLoginContainer>
         <StyledImageWrapper>
-          <Image src={WhatAppLogo} alt="Chat app" height="200" width="200" />
+          <Image src={AppLogo} alt="Chat app" height="200" width="200" />
         </StyledImageWrapper>
         <Button variant="outlined" onClick={handleSignIn}>
           Sign in with Google
