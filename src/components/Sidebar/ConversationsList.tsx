@@ -1,5 +1,5 @@
 import { Conversation } from "../../../models";
-import ConversationSelect from "../ConversationSelect/ConversationSelect";
+import ConversationSelect from "./ConversationSelect";
 
 const ConversationsList = ({
   conversations,
