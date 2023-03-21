@@ -1,11 +1,10 @@
-import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { Conversation } from "../../../models";
 import ConversationSelect from "../ConversationSelect/ConversationSelect";
 
 const ConversationsList = ({
   conversations,
 }: {
-  conversations: QueryDocumentSnapshot<DocumentData>[] | undefined;
+  conversations: Conversation[] | undefined;
 }) => {
   return (
     <>
@@ -13,7 +12,7 @@ const ConversationsList = ({
         <ConversationSelect
           key={conversation.id}
           id={conversation.id}
-          conversationUsers={(conversation.data() as Conversation).users}
+          conversationUsers={conversation.users}
         />
       ))}
     </>

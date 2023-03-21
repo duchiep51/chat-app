@@ -1,6 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 
 export interface Conversation {
+  id: string,
   users: string[];
 }
 

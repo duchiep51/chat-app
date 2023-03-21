@@ -25,13 +25,6 @@ export const StyledHeader = styled.div`
   z-index: 1;
 `;
 
-export const StyledSearch = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  border-radius: 2px;
-`;
-
 export const StyledSidebarButton = styled(Button)`
   width: 100%;
   border-top: 1px solid whitesmoke;
@@ -45,8 +38,3 @@ export const StyledUserAvatar = styled(Avatar)`
   }
 `;
 
-export const StyledSearchInput = styled.input`
-  outline: none;
-  border: none;
-  flex: 1;
-`;

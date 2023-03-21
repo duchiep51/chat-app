@@ -9,10 +9,6 @@ import {
   TextField
 } from "@mui/material";
 import * as EmailValidator from "email-validator";
-import {
-  DocumentData,
-  QueryDocumentSnapshot
-} from "firebase/firestore";
 import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../config/firebase";
@@ -22,7 +18,7 @@ import { StyledSidebarButton } from "./styles";
 const StartNewConversation = ({
   conversations,
 }: {
-  conversations: QueryDocumentSnapshot<DocumentData>[] | undefined;
+  conversations: Conversation[] | undefined;
 }) => {
   const [loggedInUser] = useAuthState(auth);
 
@@ -41,7 +37,7 @@ const StartNewConversation = ({
 
   const isConversationsExisted = (recipientEmail: string) => {
     return conversations?.find((conversation) =>
-      (conversation.data() as Conversation).users.includes(recipientEmail)
+      conversation.users.includes(recipientEmail)
     );
   };
 
