@@ -21,6 +21,7 @@ const ConversationSelect = ({
 }: {
   id: string;
   conversationUsers: Conversation["users"];
+  des?: string
 }) => {
   const { recipient, recipientEmail } = useRecipient(conversationUsers);
 

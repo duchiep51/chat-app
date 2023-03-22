@@ -14,11 +14,11 @@ export const StyledSearchInput = styled.input`
   flex: 1;
 `;
 
-const SearchBar = () => {
+const SearchBar = ({ onInputChange }: { onInputChange?: (e: any) => void }) => {
   return (
     <StyledSearch>
       <SearchIcon />
-      <StyledSearchInput placeholder="Search" />
+      <StyledSearchInput onChange={onInputChange} placeholder="Search" />
     </StyledSearch>
   );
 };

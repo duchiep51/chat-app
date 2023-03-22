@@ -1,30 +1,55 @@
 import SearchBar from "@/atoms/SearchBar";
-import { queryGetConversationsForCurrentUser } from "@/db/conversations/queries";
+import { doc, getDoc } from "firebase/firestore";
+import { GetServerSideProps } from "next";
+import { type } from "os";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useCollection } from "react-firebase-hooks/firestore";
-import { auth } from "../../../config/firebase";
+import { auth, db } from "../../../config/firebase";
+import useConversation from "../../../hooks/useConversation";
+import useDebounce from "../../../hooks/useDebounce";
 import { Conversation } from "../../../models";
 import ConversationsList from "./ConversationsList";
 import SidebarHeader from "./SidebarHeader";
 import StartNewConversation from "./StartNewConversation";
 import { StyledContainer } from "./styles";
 
-const Sidebar = () => {
-  const [loggedInUser] = useAuthState(auth);
+type Props = {
+  conversations?: Conversation[];
+};
 
-  const [conversationSnapshot, __loading] = useCollection(
-    queryGetConversationsForCurrentUser(loggedInUser?.email as string)
-  );
-  const conversations = conversationSnapshot?.docs.map(
-    (doc) => ({ ...doc.data(), id: doc.id } as Conversation)
-  );
+const Sidebar = ({ conversations: initialConversations }: Props) => {
+  const [loggedInUser] = useAuthState(auth);
+  const [searchKeys, setSearchKeys] = useState<string>("");
+  const { conversations, loading } = useConversation();
+  const debouncedSearchKeys = useDebounce<string>(searchKeys);
+  const [displayedConversations, setDisplayedConversations] = useState<
+    Conversation[] | undefined
+  >(initialConversations);
+
+  useEffect(() => {
+    if (!conversations) return;
+
+    let searchedConversations = [...conversations];
+
+    if (debouncedSearchKeys) {
+      searchedConversations = conversations?.filter((c) =>
+        c.users.find(
+          (u) => u.includes(debouncedSearchKeys) && u !== loggedInUser?.email
+        )
+      );
+    }
+
+    setDisplayedConversations(searchedConversations);
+  }, [debouncedSearchKeys, conversations]);
+
+  console.log("loading", loading);
 
   return (
     <StyledContainer>
       <SidebarHeader />
-      <SearchBar />
+      <SearchBar onInputChange={(e) => setSearchKeys(e.target.value)} />
       <StartNewConversation conversations={conversations} />
-      <ConversationsList conversations={conversations} />
+      <ConversationsList conversations={displayedConversations} />
     </StyledContainer>
   );
 };

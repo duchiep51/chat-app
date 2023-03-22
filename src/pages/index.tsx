@@ -1,10 +1,16 @@
-import Sidebar from '@/components/Sidebar'
-import { Inter } from 'next/font/google'
-import Head from 'next/head'
+import Sidebar from "@/components/Sidebar";
+import { queryGetConversationsForCurrentUser } from "@/db/conversations/queries";
+import { getDocs } from "firebase/firestore";
+import { GetServerSideProps } from "next";
+import Head from "next/head";
+import nookies from "nookies";
+import { Conversation } from "../../models";
 
-const inter = Inter({ subsets: ['latin'] })
+type Props = {
+  conversations: Conversation[];
+};
 
-export default function Home() {
+export default function Home({ conversations }: Props) {
   return (
     <>
       <Head>
@@ -14,8 +20,31 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div>
-        <Sidebar /> 
+        <Sidebar conversations={conversations} />
       </div>
     </>
-  )
+  );
 }
+
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
+  const cookies = nookies.get(ctx);
+
+  let conversationSnapshot;
+  try {
+    conversationSnapshot = await getDocs(
+      queryGetConversationsForCurrentUser(cookies.userEmail)
+    );
+  } catch (error) {
+    console.log("Error at get conversations: ", error);
+  }
+
+  const conversations = conversationSnapshot?.docs.map(
+    (doc) => ({ ...doc.data(), id: doc.id } as Conversation)
+  );
+
+  return {
+    props: {
+      conversations: conversations ?? [],
+    },
+  };
+};
