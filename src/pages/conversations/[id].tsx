@@ -1,16 +1,17 @@
 import ConversationScreen from "@/components/ConversationScreen/ConversationScreen";
 import Sidebar from "@/components/Sidebar";
-import { doc, getDoc, getDocs } from "firebase/firestore";
+import {
+  getConversationById,
+  getConversations
+} from "@/db/conversations/utils";
+import { getMessages } from "@/db/messages/utils";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
+import nookies from "nookies";
 import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
-import { auth, db } from "../../../config/firebase";
+import { auth } from "../../../config/firebase";
 import { Conversation, IMessage } from "../../../models";
-import {
-  generateQueryGetMessage,
-  transformMessage
-} from "../../../utils/getMessageInConversation";
 import { getRecipientEmail } from "../../../utils/getRecipientEmail";
 
 const StyledContainer = styled.div`
@@ -29,9 +30,10 @@ const StyledConversationContainer = styled.div`
 interface Props {
   conversation: Conversation;
   messages: IMessage[];
+  conversations: Conversation[];
 }
 
-const Conversation = ({ conversation, messages }: Props) => {
+const Conversation = ({ conversation, messages, conversations }: Props) => {
   const [loggedInUser, _loading, _error] = useAuthState(auth);
   return (
     <StyledContainer>
@@ -42,7 +44,7 @@ const Conversation = ({ conversation, messages }: Props) => {
         </title>
       </Head>
 
-      <Sidebar />
+      <Sidebar conversations={conversations}/>
 
       <StyledConversationContainer>
         <ConversationScreen conversation={conversation} messages={messages} />
@@ -58,24 +60,19 @@ export const getServerSideProps: GetServerSideProps<
   { id: string }
 > = async (context) => {
   const conversationId = context.params?.id;
+  const cookies = nookies.get(context);
 
-  // get conversation
-  const conversationRef = doc(db, "conversations", conversationId as string);
-  const conversationSnapshot = await getDoc(conversationRef);
+  const conversation = await getConversationById(conversationId as string);
 
-  // get all messages
-  const queryMessages = generateQueryGetMessage(conversationId);
+  const messages = await getMessages(conversationId as string);
 
-  const messagesSnapshot = await getDocs(queryMessages);
-
-  const messages = messagesSnapshot.docs.map((messageDoc) =>
-    transformMessage(messageDoc)
-  );
+  const conversations = await getConversations(cookies.userEmail);
 
   return {
     props: {
-      conversation: conversationSnapshot.data() as Conversation,
+      conversation,
       messages,
+      conversations,
     },
   };
 };

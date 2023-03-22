@@ -1,10 +1,7 @@
 import SearchBar from "@/atoms/SearchBar";
-import { doc, getDoc } from "firebase/firestore";
-import { GetServerSideProps } from "next";
-import { type } from "os";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "../../../config/firebase";
+import { auth } from "../../../config/firebase";
 import useConversation from "../../../hooks/useConversation";
 import useDebounce from "../../../hooks/useDebounce";
 import { Conversation } from "../../../models";
@@ -20,7 +17,7 @@ type Props = {
 const Sidebar = ({ conversations: initialConversations }: Props) => {
   const [loggedInUser] = useAuthState(auth);
   const [searchKeys, setSearchKeys] = useState<string>("");
-  const { conversations, loading } = useConversation();
+  const { conversations } = useConversation();
   const debouncedSearchKeys = useDebounce<string>(searchKeys);
   const [displayedConversations, setDisplayedConversations] = useState<
     Conversation[] | undefined
@@ -41,8 +38,6 @@ const Sidebar = ({ conversations: initialConversations }: Props) => {
 
     setDisplayedConversations(searchedConversations);
   }, [debouncedSearchKeys, conversations]);
-
-  console.log("loading", loading);
 
   return (
     <StyledContainer>

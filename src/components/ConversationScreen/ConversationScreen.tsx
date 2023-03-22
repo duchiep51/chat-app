@@ -1,3 +1,5 @@
+import { queryGetMessages } from "@/db/messages/queries";
+import { transformMessage } from "@/db/messages/utils";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import MicIcon from "@mui/icons-material/Mic";
@@ -9,14 +11,14 @@ import {
   collection,
   doc,
   serverTimestamp,
-  setDoc,
+  setDoc
 } from "firebase/firestore";
 import { useRouter } from "next/router";
 import {
   KeyboardEventHandler,
   MouseEventHandler,
   useRef,
-  useState,
+  useState
 } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
@@ -24,11 +26,8 @@ import styled from "styled-components";
 import { auth, db } from "../../../config/firebase";
 import { useRecipient } from "../../../hooks/useRecipient";
 import { Conversation, IMessage } from "../../../models";
-import {
-  convertFirestoreTimestampToString,
-  generateQueryGetMessage,
-  transformMessage,
-} from "../../../utils/getMessageInConversation";
+import { convertFirestoreTimestampToString } from "../../../utils/timpestamp";
+
 import Message from "../Message/Message";
 import RecipientAvatar from "../RecipientAvatar/RecipientAvatar";
 
@@ -113,10 +112,8 @@ const ConversationScreen = ({
   const router = useRouter();
   const conversationId = router.query.id as string;
 
-  const queryGetMessages = generateQueryGetMessage(conversationId);
-
   const [messagesSnapshot, messagesLoading, __error] =
-    useCollection(queryGetMessages);
+    useCollection(queryGetMessages(conversationId));
 
   const showMessages = () => {
     if (messagesLoading) {

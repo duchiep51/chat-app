@@ -21,13 +21,13 @@ const ConversationSelect = ({
 }: {
   id: string;
   conversationUsers: Conversation["users"];
-  des?: string
+  des?: string;
 }) => {
   const { recipient, recipientEmail } = useRecipient(conversationUsers);
 
   const router = useRouter();
 
-  const handleSelectConversation = () => router.push(`/conversations/${id}`)
+  const handleSelectConversation = () => router.push(`/conversations/${id}`);
 
   return (
     <StyledContainer onClick={handleSelectConversation}>
