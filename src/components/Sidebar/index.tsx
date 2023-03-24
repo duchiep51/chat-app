@@ -1,5 +1,5 @@
 import SearchBar from "@/atoms/SearchBar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../config/firebase";
 import useConversation from "../../../hooks/useConversation";
@@ -23,21 +23,21 @@ const Sidebar = ({ conversations: initialConversations }: Props) => {
     Conversation[] | undefined
   >(initialConversations);
 
-  useEffect(() => {
-    if (!conversations) return;
+  // useEffect(() => {
+  //   if (!conversations) return;
 
-    let searchedConversations = [...conversations];
+  //   let searchedConversations = [...conversations];
 
-    if (debouncedSearchKeys) {
-      searchedConversations = conversations?.filter((c) =>
-        c.users.find(
-          (u) => u.includes(debouncedSearchKeys) && u !== loggedInUser?.email
-        )
-      );
-    }
+  //   if (debouncedSearchKeys) {
+  //     searchedConversations = conversations?.filter((c) =>
+  //       c.users.find(
+  //         (u) => u.includes(debouncedSearchKeys) && u !== loggedInUser?.email
+  //       )
+  //     );
+  //   }
 
-    setDisplayedConversations(searchedConversations);
-  }, [debouncedSearchKeys, conversations]);
+  //   setDisplayedConversations(searchedConversations);
+  // }, [debouncedSearchKeys, conversations]);
 
   return (
     <StyledContainer>

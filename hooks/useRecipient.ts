@@ -10,7 +10,7 @@ import { AppUser, Conversation } from "../models";
 export const useRecipient = (conversationUsers: Conversation["users"]) => {
   const [loggedInUser] = useAuthState(auth);
 
-  const recipientEmail = getRecipientEmail(conversationUsers, loggedInUser);
+  const recipientEmail = getRecipientEmail(conversationUsers, loggedInUser?.email);
 
   const queryGetRecipient = query(
     collection(db, "users"),

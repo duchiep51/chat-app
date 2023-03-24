@@ -2,7 +2,12 @@ import Sidebar from "@/components/Sidebar";
 import { getConversations } from "@/db/conversations/utils";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
+import { redirect } from "next/navigation";
+import { useRouter } from "next/router";
 import nookies from "nookies";
+import { useEffect } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../config/firebase";
 import { Conversation } from "../../models";
 
 type Props = {
@@ -10,6 +15,17 @@ type Props = {
 };
 
 export default function Home({ conversations }: Props) {
+  // redirect('/login');
+
+  const [loggedInUser, loading, _error] = useAuthState(auth);
+  const router = useRouter();
+
+  useEffect(() => {
+    return () => {
+      !loggedInUser && router.push("/login");
+    };
+  });
+
   return (
     <>
       <Head>
@@ -19,7 +35,11 @@ export default function Home({ conversations }: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div>
-        <Sidebar conversations={conversations} />
+        {!loggedInUser ? (
+          <div></div>
+        ) : (
+          <Sidebar conversations={conversations} />
+        )}
       </div>
     </>
   );
@@ -29,10 +49,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const cookies = nookies.get(ctx);
 
   const conversations = await getConversations(cookies.userEmail);
+  console.log("conversations", conversations);
 
   return {
     props: {
-      conversations: conversations,
+      conversations,
     },
   };
 };

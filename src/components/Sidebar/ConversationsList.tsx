@@ -1,5 +1,11 @@
+import styled from "styled-components";
 import { Conversation } from "../../../models";
 import ConversationSelect from "./ConversationSelect";
+
+const StyledConversationsListContainer = styled.div`
+  overflow-y: scroll;
+  height: 80vh;
+`
 
 const ConversationsList = ({
   conversations,
@@ -7,7 +13,7 @@ const ConversationsList = ({
   conversations: Conversation[] | undefined;
 }) => {
   return (
-    <>
+    <StyledConversationsListContainer>
       {conversations?.map((conversation) => (
         <ConversationSelect
           key={conversation.id}
@@ -15,7 +21,7 @@ const ConversationsList = ({
           conversationUsers={conversation.users}
         />
       ))}
-    </>
+    </StyledConversationsListContainer>
   );
 };
 

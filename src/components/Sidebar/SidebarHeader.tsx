@@ -3,16 +3,19 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import MoreVerticalIcon from "@mui/icons-material/MoreVert";
 import { IconButton, Tooltip } from "@mui/material";
 import { signOut } from "firebase/auth";
+import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../config/firebase";
 import { StyledHeader, StyledUserAvatar } from "./styles";
 
 const SidebarHeader = () => {
   const [loggedInUser, _loading, _error] = useAuthState(auth);
+  const router = useRouter();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      router.push("/login");
     } catch (error) {
       console.log("Logout error: ", error);
     }

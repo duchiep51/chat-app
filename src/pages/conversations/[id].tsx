@@ -1,13 +1,16 @@
-import ConversationScreen from "@/components/ConversationScreen/ConversationScreen";
+import ConversationScreen from "@/components/Conversation";
 import Sidebar from "@/components/Sidebar";
+import RecipientsContext from "@/contexts/user";
 import {
   getConversationById,
   getConversations
 } from "@/db/conversations/utils";
 import { getMessages } from "@/db/messages/utils";
+import { getRecipients } from "@/db/users/utils";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import nookies from "nookies";
+import { useContext } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
 import { auth } from "../../../config/firebase";
@@ -40,11 +43,11 @@ const Conversation = ({ conversation, messages, conversations }: Props) => {
       <Head>
         <title>
           Conversation with{" "}
-          {getRecipientEmail(conversation.users, loggedInUser)}
+          {getRecipientEmail(conversation.users, loggedInUser?.email)}
         </title>
       </Head>
 
-      <Sidebar conversations={conversations}/>
+      <Sidebar conversations={conversations} />
 
       <StyledConversationContainer>
         <ConversationScreen conversation={conversation} messages={messages} />
@@ -63,10 +66,12 @@ export const getServerSideProps: GetServerSideProps<
   const cookies = nookies.get(context);
 
   const conversation = await getConversationById(conversationId as string);
-
+  
   const messages = await getMessages(conversationId as string);
-
+  
   const conversations = await getConversations(cookies.userEmail);
+
+  console.log('over here')
 
   return {
     props: {
